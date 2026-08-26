@@ -12,7 +12,7 @@ app.get("/api/health", (req, res) => {
 });
 app.get('/api/version', (req, res) => {
   res.json({ version: '0.1.0' });
-});
+}); // changed for push to show
 app.listen(PORT, () => {
     console.log(`Inkwell API listening on port ${PORT}`);
 });
