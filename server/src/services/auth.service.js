@@ -9,6 +9,12 @@ class EmailAlreadyRegisteredError extends Error {}
 class WeakPasswordError extends Error {}
 class InvalidCredentialsError extends Error {}
 const MIN_PASSWORD_LENGTH = 8;
+
+function toPublicUser(user) {
+    const { passwordHash, ...publicUser } = user;
+    return publicUser;
+}
+
 export const AuthService = {
     async register({ email, displayName, password }) {
         assertNonEmpty(email, "email", "MISSING_EMAIL");
@@ -32,7 +38,7 @@ export const AuthService = {
         throw new EmailAlreadyRegisteredError();
     }
     const tokens = TokenService.issueTokens(user);
-        return { user, ...tokens };
+        return { user: toPublicUser(user), ...tokens };
     },
     async login({ email, password }) {
     const user = await UserRepository.findByEmail(email);
@@ -44,7 +50,7 @@ export const AuthService = {
         throw new InvalidCredentialsError();
     }
     const tokens = TokenService.issueTokens(user);
-        return { user, ...tokens };
+        return { user: toPublicUser(user), ...tokens };
     },
 };
 export { EmailAlreadyRegisteredError, WeakPasswordError, InvalidCredentialsError, ValidationError };
