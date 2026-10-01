@@ -1,6 +1,7 @@
-// server/src/services/auth.service.js
-//
-// Implements processing narratives exactly, in order.
+// server/src/services/auth.service.js (excerpt, refactor)
+// Section 4.5's "Magic Numbers" anti-pattern, corrected: the bcrypt
+// cost factor and minimum password length are now named constants,
+// not bare literals a future reader would have to guess the meaning of.
 import bcrypt from "bcrypt";
 import { UserRepository } from "../repositories/user.repository.js";
 import { assertNonEmpty, ValidationError } from "../utils/validation.js";
@@ -8,6 +9,7 @@ import { TokenService } from "./token.service.js";
 class EmailAlreadyRegisteredError extends Error {}
 class WeakPasswordError extends Error {}
 class InvalidCredentialsError extends Error {}
+const BCRYPT_COST_FACTOR = 10; // see Lecture 15 for the security tradeoff this number encodes
 const MIN_PASSWORD_LENGTH = 8;
 
 function toPublicUser(user) {
@@ -27,7 +29,7 @@ export const AuthService = {
     if (password.length < MIN_PASSWORD_LENGTH) {
         throw new WeakPasswordError();
     }
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, BCRYPT_COST_FACTOR);
     let user;
     try {
         user = await UserRepository.create({ email, displayName, passwordHash });
