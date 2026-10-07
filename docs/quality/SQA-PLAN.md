@@ -19,3 +19,7 @@
 - Review turnaround (informal, tracked qualitatively at this project's scale)
 ## Ownership
 - For this course project: the student/team implementing Inkwell owns SQA plan adherence.
+## Metrics Snapshot
+- **Commits:** [17]
+- **Logged defects:** [1]
+- **Backlog items marked "Requirements Defined" or later:** [4]
