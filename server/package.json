@@ -5,8 +5,8 @@
   "description": "Inkwell API server",
   "main": "index.js",
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-    "dev": "node --watch --env-file=.env src/index.js"
+    "dev": "node --watch --env-file=.env src/index.js",
+    "test": "node --experimental-vm-modules --env-file=.env.test ./node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -14,15 +14,17 @@
   "type": "module",
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "^7.10.0",
+    "@prisma/client": "^7.10.1",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
+    "@types/node": "^26.6.5",
     "jest": "^30.5.2",
-    "prisma": "^8.0.0-rc.19"
+    "prisma": "^7.10.1",
+    "supertest": "^7.3.1"
   },
   "engines": {
     "node": ">=22.0.0"

@@ -1,26 +1,11 @@
 // server/src/index.js
 //
-// Entry point. As of Lecture 5, this file's only job is to assemble
-// middleware and mount routers — it contains no business logic itself,
-// consistent with ADR-001's layered architecture.
+// This file's resulting content wasn't actually shown above — only
+// described in prose ("index.js now only handles process startup"). It
+// now only imports app.js and starts the listener.
 import "dotenv/config";
-import express from "express";
-import healthRoutes from "./routes/health.routes.js";
-import authRoutes from "./routes/auth.routes.js";
-import postRoutes from "./routes/post.routes.js";
-import "./events/listeners/log-published-posts.listener.js";
-import "./events/listeners/stats.listener.js";
-const app = express();
+import { app } from "./app.js";
 const PORT = process.env.PORT || 4000;
-app.use(express.json());
-app.use("/api", healthRoutes);
-app.use("/api", authRoutes);
-app.use("/api", postRoutes);
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(err.status || 500).json({error: { code: err.code || "INTERNAL_ERROR", message: err.message },
-    });
-});
 app.listen(PORT, () => {
     console.log(`Inkwell API listening on port ${PORT}`);
 });
