@@ -75,3 +75,33 @@ test("registration and login work together", async () => {
   expect(loginRes.body.accessToken).toBeTruthy();
   expect(loginRes.body.refreshToken).toBeTruthy();
 });
+test.each([
+  "/api/posts?pageSize=51",
+  "/api/posts?pageSize=51&search=hello"
+])(
+  "rejects an oversized pageSize request: %s",
+  async (url) => {
+    const response = await request(app)
+      .get(url);
+
+    expect(response.status).toBe(400);
+
+    expect(
+      response.body.error.code
+    ).toBe("INVALID_PAGINATION");
+  }
+);
+
+test(
+  "accepts the maximum pageSize of 50",
+  async () => {
+    const response = await request(app)
+      .get("/api/posts?pageSize=50");
+
+    expect(response.status).toBe(200);
+
+    expect(
+      response.body.posts
+    ).toEqual([]);
+  }
+);

@@ -6,24 +6,45 @@
 import { Router } from "express";
 import { PostService } from "../services/post.service.js";
 import { PostStats } from "../events/listeners/stats.listener.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 const router = Router();
-router.post("/posts", async (req, res) => {
-    try {
-        const { authorId, title, body } = req.body;
-        const post = await PostService.publish({ authorId, title, body });
-        res.status(201).json(post);
-    } catch (err) {
-        res.status(400).json({
-            error: { code: err.code || "VALIDATION_ERROR", message:err.message },
-        });
-    }
+router.post("/posts", requireAuth, async (req, res, next) => {
+  try {
+    // Never trust client-supplied identity fields — derive
+    // authorId from the authenticated request, not the request body.
+    const post = await PostService.publish({
+      ...req.body,
+      authorId: req.user.id, // set by requireAuth middleware from the verified JWT
+    });
+    res.status(201).json(post);
+  } catch (err) {
+    next(err);
+  }
 });
 router.get("/posts", async (req, res) => {
-    const { page = 1, search } = req.query;
-    const result = search
-        ? await PostService.search({ query: search, page: Number(page) })
-        : await PostService.listPublished({ page: Number(page) });
-    res.status(200).json(result);
+    try {
+        const page = Number(req.query.page ?? 1);
+        const pageSize = Number(req.query.pageSize ?? 10);
+        const { search } = req.query;
+        const MAX_PAGE_SIZE = 50;
+        if (
+            !Number.isSafeInteger(page) ||
+            page < 1 ||
+            !Number.isSafeInteger(pageSize) ||
+            pageSize < 1 ||
+            pageSize > MAX_PAGE_SIZE
+        ) {
+            return res.status(400).json({
+                error: { code: "INVALID_PAGINATION", message: `page must be a positive integer and pageSize must be between 1 and ${MAX_PAGE_SIZE}.` }
+            });
+        }
+        const result = search
+            ? await PostService.search({ query: search, page, pageSize })
+            : await PostService.listPublished({ page, pageSize });
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
 });
 router.get("/stats", (req, res) => {
   res.status(200).json(PostStats.get());
