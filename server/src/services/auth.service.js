@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import { UserRepository } from "../repositories/user.repository.js";
 import { assertNonEmpty, ValidationError } from "../utils/validation.js";
 import { TokenService } from "./token.service.js";
+import { logger } from "../lib/logger.js";
 class EmailAlreadyRegisteredError extends Error {}
 class WeakPasswordError extends Error {}
 class InvalidCredentialsError extends Error {}
@@ -43,15 +44,19 @@ export const AuthService = {
         return { user: toPublicUser(user), ...tokens };
     },
     async login({ email, password }) {
-    const user = await UserRepository.findByEmail(email);
-    if (!user) {
-        throw new InvalidCredentialsError();
-    }
-    const matches = await bcrypt.compare(password, user.passwordHash);
-    if (!matches) {
-        throw new InvalidCredentialsError();
-    }
-    const tokens = TokenService.issueTokens(user);
+        const user = await UserRepository.findByEmail(email);
+        if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+            // fix: a structured, leveled, machine-parseable log
+            // line — searchable by "event" or "email" once aggregated,
+            // not just a free-form sentence buried in scrollback.
+            logger.warn({ event: "auth.login.failed", email }, "Failed login attempt");
+            throw new InvalidCredentialsError();
+        }
+        const matches = await bcrypt.compare(password, user.passwordHash);
+        if (!matches) {
+            throw new InvalidCredentialsError();
+        }
+        const tokens = TokenService.issueTokens(user);
         return { user: toPublicUser(user), ...tokens };
     },
 };

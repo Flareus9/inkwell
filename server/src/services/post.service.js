@@ -28,4 +28,10 @@ export const PostService = {
     async search({ query, page = 1, pageSize = 10 }) {
         return searchStrategy.search(query, { page, pageSize });
     },
+    async getById(id) {
+        return PostRepository.findById(id);
+    },
+    async delete(id) {
+        return PostRepository.deleteById(id);
+    },
 };
