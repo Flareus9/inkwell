@@ -1,3 +1,4 @@
+
 {
   "name": "inkwell-server",
   "version": "0.1.0",
@@ -6,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --watch --env-file=.env src/index.js",
-    "test": "node --experimental-vm-modules --env-file=.env.test node_modules/.bin/jest --runInBand"
+    "test": "node --experimental-vm-modules --env-file=.env.test ./node_modules/jest/bin/jest.js --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -20,12 +21,12 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.2",
     "jsonwebtoken": "^9.0.3",
-    "pino": "^10.4.0"
+    "pino": "^10.4.0",
+    "prisma": "^7.10.1"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
     "jest": "^30.5.2",
-    "prisma": "^7.10.1",
     "supertest": "^7.3.1"
   },
   "engines": {

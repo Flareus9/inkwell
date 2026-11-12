@@ -1,0 +1,6 @@
+node_modules
+.env
+.env.test
+*.log
+__tests__
+src/test-utils

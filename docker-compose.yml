@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: inkwell
+      POSTGRES_PASSWORD: inkwell
+      POSTGRES_DB: inkwell_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - inkwell_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inkwell -d inkwell_dev"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  server:
+    build: ./server
+    environment:
+      DATABASE_URL: postgresql://inkwell:inkwell@db:5432/inkwell_dev
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:?set ACCESS_TOKEN_SECRET in .env}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:?set REFRESH_TOKEN_SECRET in .env}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  inkwell_db_data:
