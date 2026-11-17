@@ -1,0 +1,27 @@
+name: Build Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+
+      - name: Build the server Docker image
+        run: docker build -t inkwell-server:ci ./server
+
+      - name: Inspect the built image
+        run: docker image inspect inkwell-server:ci --format 'Built {{.Id}} ({{.Architecture}}, {{.Size}} bytes)'
+
+      - name: Confirm the image was built
+        run: docker images inkwell-server:ci
